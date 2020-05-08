@@ -17,9 +17,7 @@ testset = OriSet("Covid19/Coronavirus_data/validation/")
 train_loader = DataLoader(trainset, batch_size, num_workers=8, pin_memory=True)
 test_loader = DataLoader(testset, batch_size, num_workers=8, pin_memory=True)
 
-
 UNet = UNet0().to(device)
-
 optimizer = Adam(UNet.parameters(), lr=1e-4)
 
 summary(UNet, (1, 256, 256))
