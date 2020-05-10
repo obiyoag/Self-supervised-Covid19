@@ -20,7 +20,7 @@ def train(model, device, train_loader, optimizer, epoch):
 
 def test(model, device, test_loader):
     model.eval()
-    testNum = len(test_loader.dataset)
+    testBatchNum = len(test_loader)
     diceloss = 0.
     Criterion = DiceLoss()
     with torch.no_grad():
@@ -29,5 +29,5 @@ def test(model, device, test_loader):
             output = model(data).view_as(target)
             diceloss += Criterion(output, target)
 
-    diceloss /= testNum
+    diceloss /= testBatchNum
     print('Test DiceLoss: {:.6f}'.format(diceloss))
