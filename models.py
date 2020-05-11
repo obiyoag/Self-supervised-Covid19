@@ -60,10 +60,18 @@ class UNet0(nn.Module):
         self.Dconv5 = double_conv(128, 256)
 
         self.Tconv1 = nn.ConvTranspose2d(256, 128, kernel_size=2, stride=2, padding=0)
-        self.Tconv2 = nn.ConvTranspose2d(128 + 128, 64, kernel_size=2, stride=2, padding=0)
-        self.Tconv3 = nn.ConvTranspose2d(64 + 64, 32, kernel_size=2, stride=2, padding=0)
-        self.Tconv4 = nn.ConvTranspose2d(32 + 32, 16, kernel_size=2, stride=2, padding=0)
-        self.Fconv = nn.Conv2d(32, 1, kernel_size=1, stride=1, padding=0)
+        self.Dconv6 = double_conv(256, 128)
+
+        self.Tconv2 = nn.ConvTranspose2d(128, 64, kernel_size=2, stride=2, padding=0)
+        self.Dconv7 = double_conv(128, 64)
+
+        self.Tconv3 = nn.ConvTranspose2d(64, 32, kernel_size=2, stride=2, padding=0)
+        self.Dconv8 = double_conv(64, 32)
+
+        self.Tconv4 = nn.ConvTranspose2d(32, 16, kernel_size=2, stride=2, padding=0)
+        self.Dconv9 = double_conv(32, 16)
+
+        self.Fconv = nn.Conv2d(16, 1, kernel_size=1, stride=1, padding=0)
         self.output = nn.Sigmoid()
 
     def forward(self, x):
@@ -84,17 +92,21 @@ class UNet0(nn.Module):
 
         t1 = self.Tconv1(c5)  # 128
         x1 = torch.cat([c4, t1], dim=1)  # 128 + 128
+        c6 = self.Dconv6(x1)  # 128
 
-        t2 = self.Tconv2(x1)    # 64
+        t2 = self.Tconv2(c6)    # 64
         x2 = torch.cat([c3, t2], dim=1)  # 64 + 64
+        c7 = self.Dconv7(x2)  # 64
 
-        t3 = self.Tconv3(x2)    # 32
+        t3 = self.Tconv3(c7)    # 32
         x3 = torch.cat([c2, t3], dim=1)  # 32 + 32
+        c8 = self.Dconv8(x3)  # 32
 
-        t4 = self.Tconv4(x3)   # 16
+        t4 = self.Tconv4(c8)   # 16
         x4 = torch.cat([c1, t4], dim=1)  # 16 + 16
+        c9 = self.Dconv9(x4)  # 16
 
-        x = self.Fconv(x4)
+        x = self.Fconv(c9)
 
         output = self.output(x)
 
