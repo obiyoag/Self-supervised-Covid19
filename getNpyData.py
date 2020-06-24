@@ -1,7 +1,7 @@
 import os
 import numpy as np
-import pandas as pd
 import nibabel as nib
+from PIL import Image
 
 
 def windowing(image, normal=False):
@@ -15,34 +15,31 @@ def windowing(image, normal=False):
         newimg = (newimg * 255).astype('uint8')
     return newimg
 
+def process(data, label, index):   
+    resized_data, resized_label = Image.fromarray(data).resize((256, 256)), Image.fromarray(label).resize((256, 256))
+    data2save, label2save = np.array(resized_data), np.array(resized_label)
+    return data2save, label2save
 
-lesionArr = pd.read_csv("Covid19/Coronavirus_data/lesionArr.csv").values[:, 1:]
-for case_id in range(1, 21):
-    data_link = "Covid19/Coronavirus_data/20cases/coronacases_" + str(case_id).zfill(3) + ".nii.gz"
-    lab_link = "Covid19/Coronavirus_data/inflection_mask/coronacases_" + str(case_id).zfill(3) + ".nii.gz"
-    data_path = "Covid19/Coronavirus_data/20cases/coronacases_" + str(case_id).zfill(3) + "/data/"
-    lab_path = "Covid19/Coronavirus_data/20cases/coronacases_" + str(case_id).zfill(3) + "/label/"
+for case_id in range(290):
+    data_link = "Coronavirus_data/300cases/image/" + str(case_id).zfill(3) + ".nii.gz"
+    lab_link = "Coronavirus_data/300cases/label/" + str(case_id).zfill(3) + ".nii.gz"
+    data_path = "Coronavirus_data/300cases/case_data/coronacases_" + str(case_id).zfill(3) + "/data/"
+    lab_path = "Coronavirus_data/300cases/case_data/coronacases_" + str(case_id).zfill(3) + "/label/"
 
     img_pros = nib.load(data_link)
     img_lab = nib.load(lab_link)
     pros_data = np.asarray(img_pros.dataobj)
     pros_lab = np.asarray(img_lab.dataobj)
-    print(pros_data.shape)
 
-    indexes = lesionArr[case_id - 1, :]
+
+    indexes = range(pros_data.shape[2])
     slice_id = 0
     for index in indexes:
 
-        if index == 0:  # 读取到0意味着读取结束,跳出循环
-            break
-        if index == 500:  # 为避免第一个0读取不上，将第一个0记作500以区分
-            index = 0
-
-        if case_id <= 10:  # 前10个cases需要设置窗宽窗位
-            data = windowing(pros_data[:, :, index])
-        else:  # 后10个cases不需要设置
-            data = pros_data[:, :, index]
+        data = windowing(pros_data[:, :, index], True)
         label = pros_lab[:, :, index]
+
+        data, label = process(data, label, index)
 
         if not (os.path.exists(data_path) and os.path.exists(lab_path)):
             os.makedirs(data_path)
@@ -51,3 +48,5 @@ for case_id in range(1, 21):
         np.save(data_path + str(slice_id) + ".npy", data)
         np.save(lab_path + str(slice_id) + ".npy", label)
         slice_id += 1
+    
+    print("Case {:d} is done.".format(case_id))

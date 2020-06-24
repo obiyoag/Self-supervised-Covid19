@@ -1,35 +1,35 @@
-import numpy as np
+import os
 import nibabel as nib
-import pandas as pd
+import numpy as np
 
-#  统计带病灶的slice个数
-lesionArr = np.zeros(420)
+# rename
+# data_link = "Coronavirus_data/300cases/image/"
+# lab_link = "Coronavirus_data/300cases/label/"
 
-for case_id in range(1, 21):
-    lab_link = "Covid19/Coronavirus_data/inflection_mask/coronacases_" + str(case_id).zfill(3) + ".nii.gz"
-    img_lab = nib.load(lab_link)
-    pros_lab = np.asarray(img_lab.dataobj)
-    count = 0
+# data_list = os.listdir(data_link)
+# lab_list = os.listdir(lab_link)
 
-    lesionList = np.zeros(420)
-    for channel_id in range(0, pros_lab.shape[2]):
+# for id in range(len(data_list)):
+#     os.rename(data_link + data_list[id], data_link + str(id).zfill(3) + ".nii.gz")
+#     os.rename(lab_link + lab_list[id], lab_link + str(id).zfill(3) + ".nii.gz")
 
-        if pros_lab.max() == 3:  # 对于后10个cases
-            if pros_lab[:, :, channel_id].max() == 3:
-                lesionList[channel_id] += 1
-                count += 1
 
-        if pros_lab.max() == 1:  # 对于前10个cases
-            if pros_lab[:, :, channel_id].max() == 1:
-                lesionList[channel_id] += 1
-                count += 1
+data_link = "nnUNet_data/nnUNet_raw_data_base/nnUNet_raw_data/Task001_Covid19/imagesTr/"
+lab_link = "nnUNet_data/nnUNet_raw_data_base/nnUNet_raw_data/Task001_Covid19/labelsTr/"
 
-    lesionList = np.where(lesionList == 1)[0]
-    lesionList = np.pad(lesionList, (0, 420 - lesionList.shape[0]))
-    lesionList[249] = count
-    lesionArr = np.vstack((lesionArr, lesionList))
-    print(lesionArr)
+for id in range(200, 220):
+    os.rename(data_link + str(id).zfill(3) + ".nii.gz", data_link + str(id).zfill(3)+ "_0000" + ".nii.gz")
+    # os.rename(lab_link + lab_list[id], lab_link + str(id+220).zfill(3) + ".nii.gz")
 
-lesionArr = lesionArr[1:, :250]
-df = pd.DataFrame(lesionArr.astype(np.int32))
-df.to_csv("Covid19/Coronavirus_data/lesionArr.csv")
+
+# for id in range(300):
+#     data_link = "Coronavirus_data/300cases/image/" + str(id).zfill(3) + ".nii.gz"
+#     lab_link = "Coronavirus_data/300cases/label/" + str(id).zfill(3) + ".nii.gz"
+
+#     img_pros = nib.load(data_link)
+#     img_lab = nib.load(lab_link)
+
+#     pros_data = np.asarray(img_pros.dataobj)
+#     pros_lab = np.asarray(img_lab.dataobj)
+
+    # print(pros_data.shape)

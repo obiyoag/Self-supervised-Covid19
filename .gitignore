@@ -1,2 +1,8 @@
 Coronavirus_data
 __pycache__
+models2save
+.vscode
+nnUNet_data
+main2.py
+main3.py
+main4.py
